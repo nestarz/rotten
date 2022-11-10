@@ -1,4 +1,9 @@
-export { default as render, scripted, scriptedGet } from "./utils/render.tsx";
+export {
+  default as render,
+  hydrate,
+  scripted,
+  scriptedGet,
+} from "./utils/render.tsx";
 export { default as stylesbuild } from "./utils/stylesbuild.ts";
 export { default as svgbuild } from "./utils/svgbuild.ts";
 

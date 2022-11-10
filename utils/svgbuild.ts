@@ -36,7 +36,7 @@ export default memo(async ({ outfile, outdir, entries }) => {
               .split("/")
               ?.pop()
               ?.match(/(.*?)\.(.*)/)?.[1]
-          )?.replace(/-/g, "")} } from "./src/components/svg/${name}";\n`
+          )?.replace(/-/g, "")} } from "${outdir}${name}";\n`
       )
       .join("")
   );

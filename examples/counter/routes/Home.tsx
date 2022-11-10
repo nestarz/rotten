@@ -1,3 +1,4 @@
+import { hydrate } from "rotten";
 import Counter from "../islands/Counter.tsx";
 import Layout from "../components/Layout.tsx";
 
@@ -11,7 +12,7 @@ export default function Home({ data: { start } }) {
         Welcome to Rotten. Try to update this message in the ./routes/index.tsx
         file, and refresh.
       </p>
-      <Counter start={start} className={hydrate("Counter")} />
+      <Counter start={3} className={hydrate("Counter", { start })} />
     </div>
   );
 }

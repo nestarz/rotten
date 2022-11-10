@@ -7,7 +7,7 @@ export default ({ children, styles: css, scriptedGet }) => {
   return (
     <html lang="en">
       <head>
-        <title>fei</title>
+        <title>Rotten - Counter</title>
         <style
           dangerouslySetInnerHTML={{
             __html: [...styles.state]

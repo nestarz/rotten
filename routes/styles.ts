@@ -1,4 +1,4 @@
-import { postcss, postcssNesting } from "../deps.ts";
+import { postcss, postcssNesting, mrmime } from "../deps.ts";
 
 const cssTransform = async (className, url) =>
   await postcss.default([postcssNesting.default]).process(
@@ -20,14 +20,13 @@ export const setup = async ({ stylesGen, base }) => {
   );
 };
 
-export const handler = async (req, stylesFiles) => {
-  const origin = new URL("./", import.meta.url);
-  const fpath = new URL(`.${new URL(req.url).pathname}`, origin);
-  for (const { path, css } of stylesFiles) {
-    if (new URL("../src/" + path, origin).href === fpath.href)
+export const handler = async (req, { origin, styles }) => {
+  const fpath = new URL(`..${new URL(req.url).pathname}`, origin);
+  for (const { path, css } of styles) {
+    if (new URL("../" + path, origin).href === fpath.href)
       return new Response(css, {
         headers: {
-          "content-type": lookup(path) ?? "text/css",
+          "content-type": mrmime.lookup(path) ?? "text/css",
           "cache-control": "public, max-age=31536000, immutable",
         },
       });

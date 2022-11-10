@@ -20,7 +20,10 @@ await serve(
         origin: new URL("./islands/", import.meta.url),
       })
     ),
-    "GET@/styles/*": withCtx(stylesRot.handler)(styles),
+    "GET@/styles/*": withCtx(stylesRot.handler)({
+      origin: new URL("./styles/", import.meta.url),
+      styles,
+    }),
     "GET@/*": withCtx(staticRot.handler)({
       origin: new URL("./static/", import.meta.url),
     }),
