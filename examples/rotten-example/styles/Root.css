@@ -1,0 +1,121 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --baseFontFamily: "Source Sans Pro", sans-serif, emoji;
+  --monospaceFontFamily: "Ubuntu Mono", monospace, emoji;
+  --iconFontFamily: "remixicon";
+  --txtPrimaryColor: #16161a;
+  --txtHintColor: #666f75;
+  --txtDisabledColor: #adb3b8;
+  --primaryColor: #16161a;
+  --bodyColor: #f8f9fa;
+  --baseColor: #ffffff;
+  --baseAlt1Color: #ebeff2;
+  --baseAlt2Color: #dee3e8;
+  --baseAlt3Color: #a9b4bc;
+  --baseAlt4Color: #7c868d;
+  --infoColor: #3da9fc;
+  --infoAltColor: #d8eefe;
+  --successColor: #2cb67d;
+  --successAltColor: #d6f5e8;
+  --dangerColor: #ef4565;
+  --dangerAltColor: #fcdee4;
+  --warningColor: #ff8e3c;
+  --warningAltColor: #ffe7d6;
+  --overlayColor: rgba(65, 80, 105, 0.25);
+  --tooltipColor: rgba(0, 0, 0, 0.85);
+  --shadowColor: rgba(0, 0, 0, 0.06);
+  --baseFontSize: 14.5px;
+  --gap: 1rem;
+  --radius: 4px;
+  --btnHeight: 40px;
+  --pageSidebarWidth: 220px;
+  --inputHeight: 34px;
+  accent-color: var(--primaryColor);
+}
+
+html,
+body {
+  line-height: var(--baseLineHeight);
+  font-family: var(--baseFontFamily);
+  color: var(--txtPrimaryColor);
+  background: var(--bodyColor);
+}
+
+html {
+  box-sizing: border-box;
+  font-size: 62.5%;
+}
+
+body {
+  font-size: var(--baseFontSize);
+  margin: 0;
+}
+
+@media screen and (min-width: 550px) {
+  html {
+    scrollbar-color: var(--baseAlt2Color) transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+  }
+}
+
+ul,
+li {
+  margin: 0;
+  padding: 0;
+  display: block;
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input[type="text"],
+input[type="number"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  outline: 0;
+  border: 0;
+  margin: 0;
+  background: none;
+  padding: 5px 10px;
+  line-height: 20px;
+  min-width: 0;
+  min-height: var(--inputHeight);
+  color: var(--txtPrimaryColor);
+  font-size: var(--baseFontSize);
+  font-family: var(--baseFontFamily);
+  font-weight: 400;
+  border-radius: var(--radius);
+  overflow: auto;
+  overflow: overlay;
+}
+
+input[type="checkbox"] {
+  width: calc(var(--gap) * 2);
+  aspect-ratio: 1;
+}
+
+form {
+  margin: 0;
+}
+
+svg {
+  width: 3rem;
+  height: 3rem;
+}
+
+.ellipsis {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

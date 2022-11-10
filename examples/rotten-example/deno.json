@@ -1,0 +1,13 @@
+{
+  "tasks": {
+    "start": "deno run -A --unstable --watch=routes/,static/,islands/,components/,styles/ dev.ts"
+  },
+  "importMap": "./import_map.json",
+  "compilerOptions": {
+    "lib": ["dom", "dom.iterable", "dom.asynciterable", "deno.ns"],
+    "jsx": "react-jsx",
+    "jsxFactory": "createElement",
+    "jsxFragmentFactory": "Fragment",
+    "jsxImportSource": "preact"
+  }
+}
