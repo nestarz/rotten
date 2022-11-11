@@ -35,7 +35,7 @@ import { useState } from "preact/hooks";
 export default (props) => {
   const [count, setCount] = useState(props.start);
   return (
-    <div>
+    <div className={props.className}>
       <p>{count}</p>
       <button onClick={() => setCount(count - 1)}>-1</button>
       <button onClick={() => setCount(count + 1)}>+1</button>
