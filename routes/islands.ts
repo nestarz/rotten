@@ -27,7 +27,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[build] " + import.meta.url);
   return {
     origin,
-    ...(await esbuildWasm
+    ...(await esbuild
       .build(
         (typeof esbuildConfig === "function" ? esbuildConfig : (v) => v)({
           entryPoints: {
