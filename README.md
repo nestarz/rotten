@@ -15,3 +15,5 @@ Some stand-out features:
 - No build step.
 - No configuration necessary.
 - TypeScript support out of the box.
+- Scoped CSS support with opt-in api.
+- SVG support support with opt-in api.
