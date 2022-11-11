@@ -1,5 +1,9 @@
 [Documentation](#-documentation) | [Getting started](#-getting-started)
 
+### Warning
+
+Do not use in production, prefer [fresh](https://github.com/denoland/fresh) from denoland if you will need support
+
 # rotten
 
 <img align="right" src="./examples/counter/static/favicon.svg" height="150px" alt="the rotten logo: a rotten sliced lemon dripping with juice">
