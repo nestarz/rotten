@@ -2,7 +2,7 @@
 
 ### Warning
 
-Do not use in production, prefer [fresh](https://github.com/denoland/fresh) from denoland if you will need support
+Do not use in production, prefer [fresh](https://github.com/denoland/fresh) from denoland if you need support
 
 # rotten
 
