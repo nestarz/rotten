@@ -21,3 +21,8 @@ Some stand-out features:
 - TypeScript support out of the box.
 - Scoped CSS support with opt-in api.
 - SVG support support with opt-in api.
+
+
+## Why ?
+
+I loved *fresh* but wanted a first-class CSS support, test other frameworks than preact, lower the cold start, and more. I ended doing a complete rewrite of fresh from scratch so I can tweak it myself but the same idea is here.
