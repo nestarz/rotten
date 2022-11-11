@@ -25,4 +25,4 @@ Some stand-out features:
 
 ## Why ?
 
-I loved *fresh* but wanted a first-class CSS support, test other frameworks than preact, lower the cold start, and more. I ended doing a complete rewrite of fresh from scratch so I can tweak it myself but the same idea is here.
+I loved *fresh* but wanted a first-class CSS support, test other frameworks than preact, lower the cold start, a more simple api for islands and more. I ended doing a complete rewrite of fresh from scratch so I can tweak it myself but the same idea is here.
