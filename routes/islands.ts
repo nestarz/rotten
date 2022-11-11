@@ -5,12 +5,12 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   esbuildOk =
     esbuildOk ??
     (await esbuildWasm.initialize({
+      worker: false,
       wasmModule: new WebAssembly.Module(
         await Deno.readFile(
           new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url)
         )
       ),
-      worker: false,
     })) ??
     true;
 
