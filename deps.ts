@@ -4,3 +4,4 @@ export * as esbuild_deno_loader from "https://deno.land/x/esbuild_deno_loader@0.
 export * as esbuildWasm from "https://deno.land/x/esbuild@v0.15.13/wasm.js";
 export * as stdFsWalk from "https://deno.land/std@0.162.0/fs/walk.ts";
 export * as mrmime from "https://deno.land/x/mrmime@v1.0.1/mod.ts";
+export const IS_PROD = !!Deno.env.get("DENO_DEPLOYMENT_ID");

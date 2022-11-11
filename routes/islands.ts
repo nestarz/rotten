@@ -1,53 +1,66 @@
-import { esbuildWasm, esbuild_deno_loader, stdFsWalk } from "../deps.ts";
+import {
+  esbuildWasm,
+  esbuild_deno_loader,
+  stdFsWalk,
+  IS_PROD,
+} from "../deps.ts";
 
-let esbuildOk: boolean = false;
+let esbuild;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
-  esbuildOk =
-    (esbuildOk ||
-      (await esbuildWasm.initialize({
-        worker: false,
+  console.time("[init] " + import.meta.url);
+  esbuild =
+    esbuild ??
+    (await esbuildWasm
+      .initialize({
+        worker: !IS_PROD,
         wasmModule: await fetch(
           new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
           { headers: { "Content-Type": "application/wasm" } }
         ).then(WebAssembly.compileStreaming),
-      }))) ??
-    true;
+      })
+      .then(() => esbuildWasm));
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
     if (isFile) islands.push(path);
+  console.timeEnd("[init] " + import.meta.url);
+  console.time("[build] " + import.meta.url);
   return {
     origin,
-    ...(await esbuildWasm.build({
-      entryPoints: {
-        preact: "preact",
-        ...Object.fromEntries(
-          islands.map((d) => [
-            d.split("/").slice(-1).pop().split(".").slice(0, -1).join("."),
-            d,
-          ])
-        ),
-      },
-      jsxFactory: "createElement",
-      jsxFragment: "Fragment",
-      jsxImportSource: "preact",
-      format: "esm",
-      target: ["chrome99", "firefox99", "safari15"],
-      plugins: [
-        esbuild_deno_loader.denoPlugin({ importMapURL, loader: "portable" }),
-      ],
-      bundle: true,
-      jsx: "automatic",
-      treeShaking: true,
-      write: false,
-      minify: !!Deno.env.get("DENO_DEPLOYMENT_ID"),
-      sourcemap: true,
-      outdir: ".",
-      metafile: true,
-      splitting: true,
-      platform: "neutral",
-      ...esbuildConfig,
-    })),
+    ...(await esbuildWasm
+      .build(
+        (typeof esbuildConfig === "function" ? esbuildConfig : (v) => v)({
+          entryPoints: {
+            preact: "preact",
+            ...Object.fromEntries(
+              islands.map((d) => [
+                d.split("/").slice(-1).pop().split(".").slice(0, -1).join("."),
+                d,
+              ])
+            ),
+          },
+          jsxFactory: "createElement",
+          jsxFragment: "Fragment",
+          jsxImportSource: "preact",
+          format: "esm",
+          target: ["chrome99", "firefox99", "safari15"],
+          plugins: [
+            esbuild_deno_loader.denoPlugin({ importMapURL, loader: "native" }),
+          ],
+          bundle: true,
+          jsx: "automatic",
+          treeShaking: true,
+          write: false,
+          minify: IS_PROD,
+          sourcemap: true,
+          outdir: ".",
+          metafile: true,
+          splitting: true,
+          platform: "neutral",
+          ...(typeof esbuildConfig === "object" ? esbuildConfig : {}),
+        })
+      )
+      .finally(() => console.timeEnd("[build] " + import.meta.url))),
   };
 };
 
