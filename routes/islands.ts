@@ -1,17 +1,16 @@
 import { esbuildWasm, esbuild_deno_loader, stdFsWalk } from "../deps.ts";
 
-let esbuildOk = false;
+let esbuildOk: boolean = false;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   esbuildOk =
-    esbuildOk ??
-    (await esbuildWasm.initialize({
-      worker: false,
-      wasmModule: new WebAssembly.Module(
-        await Deno.readFile(
-          new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url)
-        )
-      ),
-    })) ??
+    (esbuildOk ||
+      (await esbuildWasm.initialize({
+        worker: false,
+        wasmModule: await fetch(
+          new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
+          { headers: { "Content-Type": "application/wasm" } }
+        ).then(WebAssembly.compileStreaming),
+      }))) ??
     true;
 
   const islands = [];

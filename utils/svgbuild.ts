@@ -25,7 +25,7 @@ export default memo(async ({ outfile, outdir, entries }) => {
   );
   const svgs = [];
   for await (const { name, isFile } of Deno.readDir(outdir))
-    if (isFile) svgs.push(name);
+    if (isFile && name.match(".*.(j|t)s(x|)$")) svgs.push(name);
   await Deno.writeTextFile(
     outfile,
     svgs

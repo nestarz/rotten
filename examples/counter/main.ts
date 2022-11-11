@@ -28,5 +28,5 @@ await serve(
       origin: new URL("./static/", import.meta.url),
     }),
   }),
-  { port: 3002 }
+  { port: 3003 }
 );
