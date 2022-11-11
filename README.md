@@ -30,7 +30,7 @@ I loved _fresh_ but wanted a first-class CSS support, test other frameworks than
 
 ```tsx
 // ./islands/Counter.tsx
-import { useState } from "preact/hooks";
+import { useState } from "https://esm.sh/preact@10.11.2/hooks";
 
 export default (props) => {
   const [count, setCount] = useState(props.start);
