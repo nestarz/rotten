@@ -3,12 +3,23 @@ import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
+  Deno.version = Deno.version ?? {
+    deno: "1.27.0",
+    v8: "10.8.168.4",
+    typescript: "4.8.3",
+  };
+  console.warn("Current Deno version", Deno.version);
+  console.warn("Current TypeScript version", Deno.version.typescript);
+  console.warn("Current V8 version", Deno.version.v8);
+
   await esbuild.initialize({
     worker: false,
     wasmModule: await fetch(
       new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
       { headers: { "Content-Type": "application/wasm" } }
-    ).then(WebAssembly.compileStreaming),
+    )
+      .then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v))
+      .then((v) => console.warn(WebAssembly.Module.exports(v)) ?? v),
   });
 
   const islands = [];
