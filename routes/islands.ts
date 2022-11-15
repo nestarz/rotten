@@ -1,15 +1,25 @@
-import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
+import {
+  esbuildWasm,
+  esbuild_deno_loader,
+  stdFsWalk,
+  IS_PROD,
+} from "../deps.ts";
 
+export let esbuild;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
-  await esbuild.initialize({
-    worker: !IS_PROD,
-    wasmModule: await fetch(
-      new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
-      { headers: { "Content-Type": "application/wasm" } }
-    ).then(WebAssembly.compileStreaming),
-  });
+  esbuild =
+    esbuild ??
+    (await esbuildWasm
+      .initialize({
+        worker: !IS_PROD,
+        wasmModule: await fetch(
+          new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
+          { headers: { "Content-Type": "application/wasm" } }
+        ).then(WebAssembly.compileStreaming),
+      })
+      .then(() => esbuildWasm));
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))

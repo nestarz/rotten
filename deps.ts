@@ -3,7 +3,7 @@ export * as postcssNesting from "https://esm.sh/postcss-nesting@10.2.0";
 export * as esbuild_deno_loader from "https://deno.land/x/esbuild_deno_loader@0.5.2/mod.ts";
 // -- esbuild --
 // @deno-types="https://deno.land/x/esbuild@v0.15.14/wasm.d.ts"
-export * as esbuild from "https://deno.land/x/esbuild@v0.15.14/wasm.js";
+export * as esbuildWasm from "https://deno.land/x/esbuild@v0.15.14/wasm.js";
 export * as stdFsWalk from "https://deno.land/std@0.162.0/fs/walk.ts";
 export * as mrmime from "https://deno.land/x/mrmime@v1.0.1/mod.ts";
 export const IS_PROD = !!Deno.env.get("DENO_DEPLOYMENT_ID");
