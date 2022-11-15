@@ -3,6 +3,10 @@ import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
+  console.warn("Current Deno version", Deno.version.deno);
+  console.warn("Current TypeScript version", Deno.version.typescript);
+  console.warn("Current V8 version", Deno.version.v8);
+
   await esbuild.initialize({
     worker: false,
     wasmModule: await fetch(
@@ -12,10 +16,6 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       .then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v))
       .then((v) => console.warn(WebAssembly.Module.exports(v)) ?? v),
   });
-
-  console.warn("Current Deno version", Deno.version.deno);
-  console.warn("Current TypeScript version", Deno.version.typescript);
-  console.warn("Current V8 version", Deno.version.v8);
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
