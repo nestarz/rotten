@@ -19,6 +19,7 @@ async function ensureEsbuildInitialized() {
         });
       });
     } else {
+      console.warn("Deno.run is defined");
       esbuild.initialize({});
     }
     await esbuildInitialized;
@@ -31,7 +32,9 @@ async function ensureEsbuildInitialized() {
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
   await ensureEsbuildInitialized();
-  console.warn(esbuildInitialized, "ok");
+  console.log("Current Deno version", Deno.version.deno);
+  console.log("Current TypeScript version", Deno.version.typescript);
+  console.log("Current V8 version", Deno.version.v8);
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
