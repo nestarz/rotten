@@ -7,9 +7,11 @@ import {
 
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
+  console.log(!IS_PROD);
+
   await esbuildWasm
     .initialize({
-      worker: !IS_PROD,
+      worker: false,
       wasmModule: await fetch(
         new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
         { headers: { "Content-Type": "application/wasm" } }
