@@ -5,7 +5,7 @@ async function ensureEsbuildInitialized() {
   if (esbuildInitialized === false) {
     if (Deno.run === undefined) {
       const wasmURL = new URL(
-        "../wasm/esbuild/esbuild_v0.15.13.wasm",
+        "../wasm/esbuild/esbuild_v0.15.14.wasm",
         import.meta.url
       ).href;
       esbuildInitialized = fetch(wasmURL).then(async (r) => {
