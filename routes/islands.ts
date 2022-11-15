@@ -3,6 +3,7 @@ import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
+  console.warn(Deno);
   console.warn("Current Deno version", Deno.version.deno);
   console.warn("Current TypeScript version", Deno.version.typescript);
   console.warn("Current V8 version", Deno.version.v8);
