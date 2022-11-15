@@ -21,6 +21,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       .then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v))
       .then((v) => console.warn(WebAssembly.Module.exports(v)) ?? v),
   });
+  console.warn("initialized");
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
