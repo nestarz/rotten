@@ -31,6 +31,7 @@ async function ensureEsbuildInitialized() {
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
   await ensureEsbuildInitialized();
+  console.warn(esbuildInitialized, "ok");
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
