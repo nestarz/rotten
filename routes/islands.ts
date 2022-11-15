@@ -1,23 +1,36 @@
-import {
-  esbuildWasm,
-  esbuild_deno_loader,
-  stdFsWalk,
-  IS_PROD,
-} from "../deps.ts";
+import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
+
+let esbuildInitialized: boolean | Promise<void> = false;
+async function ensureEsbuildInitialized() {
+  if (esbuildInitialized === false) {
+    if (Deno.run === undefined) {
+      const wasmURL = new URL(
+        "../wasm/esbuild/esbuild_v0.15.13.wasm",
+        import.meta.url
+      ).href;
+      esbuildInitialized = fetch(wasmURL).then(async (r) => {
+        const resp = new Response(r.body, {
+          headers: { "Content-Type": "application/wasm" },
+        });
+        const wasmModule = await WebAssembly.compileStreaming(resp);
+        await esbuild.initialize({
+          wasmModule,
+          worker: false,
+        });
+      });
+    } else {
+      esbuild.initialize({});
+    }
+    await esbuildInitialized;
+    esbuildInitialized = true;
+  } else if (esbuildInitialized instanceof Promise) {
+    await esbuildInitialized;
+  }
+}
 
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
-  console.log(!IS_PROD);
-
-  await esbuildWasm
-    .initialize({
-      worker: false,
-      wasmModule: await fetch(
-        new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
-        { headers: { "Content-Type": "application/wasm" } }
-      ).then(WebAssembly.compileStreaming),
-    })
-    .then(() => esbuildWasm);
+  await ensureEsbuildInitialized();
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
@@ -26,7 +39,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[build] " + import.meta.url);
   return {
     origin,
-    ...(await esbuildWasm
+    ...(await esbuild
       .build(
         (typeof esbuildConfig === "function" ? esbuildConfig : (v) => v)({
           entryPoints: {
