@@ -3,15 +3,13 @@ import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
-  await esbuild
-    .initialize({
-      worker: false,
-      wasmModule: await fetch(
-        new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
-        { headers: { "Content-Type": "application/wasm" } }
-      ).then(WebAssembly.compileStreaming),
-    })
-    .then(() => esbuild);
+  await esbuild.initialize({
+    worker: false,
+    wasmModule: await fetch(
+      new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
+      { headers: { "Content-Type": "application/wasm" } }
+    ).then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v)),
+  });
 
   console.log("Current Deno version", Deno.version.deno);
   console.log("Current TypeScript version", Deno.version.typescript);
