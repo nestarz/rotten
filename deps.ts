@@ -1,3 +1,9 @@
+Deno.version = Deno.version ?? {
+  deno: "1.27.0",
+  v8: "10.8.168.4",
+  typescript: "4.8.3",
+};
+
 export * as postcss from "https://deno.land/x/postcss@8.4.16/mod.js";
 export * as postcssNesting from "https://esm.sh/postcss-nesting@10.2.0";
 export * as esbuild_deno_loader from "https://deno.land/x/esbuild_deno_loader@0.5.2/mod.ts";
