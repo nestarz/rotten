@@ -3,25 +3,13 @@ import { esbuild, esbuild_deno_loader, stdFsWalk, IS_PROD } from "../deps.ts";
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
-  Deno.version = Deno.version ?? {
-    deno: "1.27.0",
-    v8: "10.8.168.4",
-    typescript: "4.8.3",
-  };
-  console.warn("Current Deno version", Deno.version);
-  console.warn("Current TypeScript version", Deno.version.typescript);
-  console.warn("Current V8 version", Deno.version.v8);
-
   await esbuild.initialize({
-    worker: false,
+    worker: !IS_PROD,
     wasmModule: await fetch(
       new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
       { headers: { "Content-Type": "application/wasm" } }
-    )
-      .then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v))
-      .then((v) => console.warn(WebAssembly.Module.exports(v)) ?? v),
+    ).then(WebAssembly.compileStreaming),
   });
-  console.warn("initialized");
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
@@ -47,9 +35,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
           jsxImportSource: "preact",
           format: "esm",
           target: ["chrome99", "firefox99", "safari15"],
-          plugins: [
-            esbuild_deno_loader.denoPlugin({ importMapURL, loader: "native" }),
-          ],
+          plugins: [esbuild_deno_loader.denoPlugin({ importMapURL })],
           bundle: true,
           jsx: "automatic",
           treeShaking: true,
@@ -57,6 +43,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
           minify: IS_PROD,
           sourcemap: true,
           outdir: ".",
+          outfile: "",
           metafile: true,
           splitting: true,
           platform: "neutral",

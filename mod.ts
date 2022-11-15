@@ -1,9 +1,3 @@
-const tm = Deno.makeTempDirSync;
-Deno.makeTempDirSync = (...props) => {
-  console.log(new Error().stack.split("\n")[2].trim().split(" ")[1]);
-  console.log("Deno.makeTempDirSync", props);
-};
-
 export {
   default as render,
   hydrate,
