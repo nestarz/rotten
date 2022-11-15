@@ -5,20 +5,17 @@ import {
   IS_PROD,
 } from "../deps.ts";
 
-let esbuild;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
-  esbuild =
-    esbuild ??
-    (await esbuildWasm
-      .initialize({
-        worker: !IS_PROD,
-        wasmModule: await fetch(
-          new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
-          { headers: { "Content-Type": "application/wasm" } }
-        ).then(WebAssembly.compileStreaming),
-      })
-      .then(() => esbuildWasm));
+  await esbuildWasm
+    .initialize({
+      worker: !IS_PROD,
+      wasmModule: await fetch(
+        new URL("../wasm/esbuild/esbuild_v0.15.13.wasm", import.meta.url),
+        { headers: { "Content-Type": "application/wasm" } }
+      ).then(WebAssembly.compileStreaming),
+    })
+    .then(() => esbuildWasm);
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
@@ -27,7 +24,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[build] " + import.meta.url);
   return {
     origin,
-    ...(await esbuild
+    ...(await esbuildWasm
       .build(
         (typeof esbuildConfig === "function" ? esbuildConfig : (v) => v)({
           entryPoints: {
