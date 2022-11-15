@@ -18,13 +18,17 @@ export const hydrate = (...props) =>
 
 export default (
     Component,
-    render = (elt) => preactRender(elt, null, { pretty: true })
+    {
+      render = (elt) => preactRender(elt, null, { pretty: true }),
+      transformBody = (app) => app.replace(/\n/g, "\n\t\t"),
+    } = {}
   ) =>
   ({ Wrapper, ...props }) => {
     const key = "__BODY_INCLUDE__";
     const app = render(<Component data={props.data} />);
     const W = Wrapper ?? (({ children }) => <html>{children}</html>);
-    return new Response(render(<W {...props}>{key}</W>).replace(key, app), {
-      headers: { "content-type": "text/html" },
-    });
+    return new Response(
+      render(<W {...props}>{key}</W>).replace(key, transformBody(app)),
+      { headers: { "content-type": "text/html" } }
+    );
   };
