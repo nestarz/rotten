@@ -1,4 +1,4 @@
-import { render as renderSSR } from "preact-render-to-string";
+import { render as preactRender } from "preact-render-to-string";
 import { scripted } from "./shalimar.ts";
 export { scripted, scriptedGet } from "./shalimar.ts";
 
@@ -16,12 +16,15 @@ export const hydrate = (...props) =>
     );
   }, ...props);
 
-export default (Component) =>
+export default (
+    Component,
+    render = (elt) => preactRender(elt, null, { pretty: true })
+  ) =>
   ({ Wrapper, ...props }) => {
     const key = "__BODY_INCLUDE__";
-    const app = renderSSR(<Component data={props.data} />);
+    const app = render(<Component data={props.data} />);
     const W = Wrapper ?? (({ children }) => <html>{children}</html>);
-    return new Response(renderSSR(<W {...props}>{key}</W>).replace(key, app), {
+    return new Response(render(<W {...props}>{key}</W>).replace(key, app), {
       headers: { "content-type": "text/html" },
     });
   };
