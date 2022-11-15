@@ -8,12 +8,14 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
     wasmModule: await fetch(
       new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
       { headers: { "Content-Type": "application/wasm" } }
-    ).then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v)),
+    )
+      .then((v) => console.warn(v) ?? WebAssembly.compileStreaming(v))
+      .then((v) => console.warn(WebAssembly.Module.exports(v)) ?? v),
   });
 
-  console.log("Current Deno version", Deno.version.deno);
-  console.log("Current TypeScript version", Deno.version.typescript);
-  console.log("Current V8 version", Deno.version.v8);
+  console.warn("Current Deno version", Deno.version.deno);
+  console.warn("Current TypeScript version", Deno.version.typescript);
+  console.warn("Current V8 version", Deno.version.v8);
 
   const islands = [];
   for await (const { path, isFile } of stdFsWalk.walk(origin))
