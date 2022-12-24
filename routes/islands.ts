@@ -5,9 +5,7 @@ import {
   IS_PROD,
 } from "../deps.ts";
 
-import * as esbuild2 from "https://deno.land/x/esbuild/mod.js";
-
-export let esbuild = esbuild2;
+export let esbuild;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
