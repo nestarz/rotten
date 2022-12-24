@@ -52,7 +52,7 @@ import {
   withCtx,
   hydrate,
 } from "https://deno.land/x/rotten/mod.ts";
-import { islandsRot, staticRot } from "https://deno.land/x/rotten/routes.ts";
+import { islandsRot, staticRot } from "https://deno.land/x/rotten/routes/index.ts";
 import Counter from "./islands/Counter.tsx";
 
 await serve(
