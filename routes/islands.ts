@@ -22,7 +22,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       .then(() => esbuildWasm));
 
   const islands = [];
-  if (!Deno.stat(origin).catch(() => false))
+  if (await !Deno.stat(origin).catch(() => false))
     console.warn("No islands found at", origin);
   else
     for await (const { path, isFile } of stdFsWalk.walk(origin))
