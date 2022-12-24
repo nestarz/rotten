@@ -2,6 +2,7 @@ import { hydrate } from "rotten";
 import Counter from "../islands/Counter.tsx";
 import Layout from "../components/Layout.tsx";
 
+export { render } from "preact-render-to-string";
 export const handler = (_, ctx) => ctx.render({ start: 3 });
 export const Wrapper = (props) => <Layout {...props} />;
 

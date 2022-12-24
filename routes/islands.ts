@@ -5,7 +5,9 @@ import {
   IS_PROD,
 } from "../deps.ts";
 
-export let esbuild;
+import * as esbuild2 from "https://deno.land/x/esbuild/mod.js";
+
+export let esbuild = esbuild2;
 export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   console.time("[init] " + import.meta.url);
 
@@ -15,7 +17,7 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       .initialize({
         worker: !IS_PROD,
         wasmModule: await fetch(
-          new URL("../wasm/esbuild/esbuild_v0.15.14.wasm", import.meta.url),
+          new URL("../wasm/esbuild/esbuild_v0.16.0.wasm", import.meta.url),
           { headers: { "Content-Type": "application/wasm" } }
         ).then(WebAssembly.compileStreaming),
       })
@@ -26,13 +28,21 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
     if (isFile) islands.push(path);
   console.timeEnd("[init] " + import.meta.url);
   console.time("[build] " + import.meta.url);
+  console.log(
+    Object.fromEntries(
+      islands.map((d) => [
+        d.split("/").slice(-1).pop().split(".").slice(0, -1).join("."),
+        d,
+      ])
+    )
+  );
+
   return {
     origin,
     ...(await esbuild
       .build(
         (typeof esbuildConfig === "function" ? esbuildConfig : (v) => v)({
           entryPoints: {
-            preact: "preact",
             ...Object.fromEntries(
               islands.map((d) => [
                 d.split("/").slice(-1).pop().split(".").slice(0, -1).join("."),
@@ -40,14 +50,13 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
               ])
             ),
           },
-          jsxFactory: "createElement",
-          jsxFragment: "Fragment",
-          jsxImportSource: "preact",
           format: "esm",
           target: ["chrome99", "firefox99", "safari15"],
           plugins: [esbuild_deno_loader.denoPlugin({ importMapURL })],
           bundle: true,
-          jsx: "automatic",
+          jsx: "transform",
+          jsxFactory: "h",
+          jsxFragment: "Fragment",
           treeShaking: true,
           write: false,
           minify: IS_PROD,

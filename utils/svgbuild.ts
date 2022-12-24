@@ -10,9 +10,10 @@ export const getSvg = async (
     await Deno.mkdir(outdir, { recursive: true }).catch(() => null);
     const str: string = await fetch(new URL(url, base)).then((r) => r.text());
     if (!str.includes("<svg")) throw Error(`${url} on ${base} not found`);
+    console.log(filepath);
     await Deno.writeTextFile(
-      new URL(filepath),
-      `export default (props) => ${str.replace("<svg ", "<svg {...props} ")}`
+      filepath,
+      `export default ({ h, ...props }) => ${str.replace("<svg ", "<svg {...props} ")}`
     );
   }
 };

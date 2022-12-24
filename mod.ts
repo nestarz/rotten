@@ -10,7 +10,11 @@ export { default as svgbuild } from "./utils/svgbuild.ts";
 import render, { scriptedGet } from "./utils/render.tsx";
 export const withCtx = (handler) => (ctx) => (req) => handler(req, ctx);
 const defaultHandler = (_, ctx) => ctx.render();
-export const withRenderer = ({ handler, default: elt, Wrapper }, ctx) =>
+export const withRenderer = (
+  { handler, default: elt, Wrapper, ...props },
+  ctx
+) =>
   withCtx(handler ?? defaultHandler)({
-    render: (data) => render(elt)({ Wrapper, scriptedGet, data, ...ctx }),
+    render: (data) =>
+      render(elt, props)({ Wrapper, scriptedGet, data, ...ctx }),
   });

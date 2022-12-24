@@ -2,7 +2,7 @@ import { svgbuild, stylesbuild } from "rotten";
 
 await svgbuild({
   outdir: "./components/svg/",
-  outfile: new URL("./svg.gen.ts", import.meta.url),
+  outfile: "./svg.gen.ts",
   entries: [
     {
       base: "https://esm.sh/remixicon@2.5.0/icons/",

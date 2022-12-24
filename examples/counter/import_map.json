@@ -2,9 +2,9 @@
   "imports": {
     "rotten": "../../mod.ts",
     "rotten/routes": "../../routes/index.ts",
-    "preact": "https://esm.sh/stable/preact@10.11.2/es2022/preact.js",
-    "preact/jsx-runtime": "https://esm.sh/stable/preact@10.11.2/es2022/jsx-runtime.js",
-    "preact/hooks": "https://esm.sh/stable/preact@10.11.2/es2022/hooks.js",
+    "preact": "https://esm.sh/stable/preact@10.11.3/es2022/preact.js",
+    "preact/jsx-runtime": "https://esm.sh/stable/preact@10.11.3/es2022/jsx-runtime.js",
+    "preact/hooks": "https://esm.sh/stable/preact@10.11.3/es2022/hooks.js",
     "preact-render-to-string": "https://esm.sh/stable/preact-render-to-string@5.2.6/es2022/preact-render-to-string.js",
     "dotenv/": "https://deno.land/x/dotenv@v3.2.0/",
     "std/http/server.ts": "https://deno.land/std@0.155.0/http/server.ts",
