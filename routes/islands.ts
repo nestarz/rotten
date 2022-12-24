@@ -22,8 +22,11 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       .then(() => esbuildWasm));
 
   const islands = [];
-  for await (const { path, isFile } of stdFsWalk.walk(origin))
-    if (isFile) islands.push(path);
+  if (!Deno.stat(origin).catch(() => false))
+    console.warn("No islands found at", origin);
+  else
+    for await (const { path, isFile } of stdFsWalk.walk(origin))
+      if (isFile) islands.push(path);
   console.timeEnd("[init] " + import.meta.url);
   console.time("[build] " + import.meta.url);
   console.log(
