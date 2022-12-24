@@ -50,7 +50,21 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
           },
           format: "esm",
           target: ["chrome99", "firefox99", "safari15"],
-          plugins: [esbuild_deno_loader.denoPlugin({ importMapURL })],
+          plugins: [
+            esbuild_deno_loader.denoPlugin({ importMapURL }),
+            {
+              name: "deno",
+              setup(build) {
+                build.onLoad(
+                  { filter: /.*\.(t|j)s(x|)/, namespace: "file" },
+                  async ({ path }) => ({
+                    contents: await Deno.readTextFile(path),
+                    loader: "tsx",
+                  })
+                );
+              },
+            },
+          ],
           bundle: true,
           jsx: "transform",
           jsxFactory: "h",
