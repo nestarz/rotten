@@ -29,15 +29,8 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
       if (isFile) islands.push(path);
   console.timeEnd("[init] " + import.meta.url);
   console.time("[build] " + import.meta.url);
-  console.log(
-    Object.fromEntries(
-      islands.map((d) => [
-        d.split("/").slice(-1).pop().split(".").slice(0, -1).join("."),
-        d,
-      ])
-    )
-  );
 
+  if (islands.length === 0) return { origin };
   return {
     origin,
     ...(await esbuild
