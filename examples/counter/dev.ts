@@ -1,4 +1,4 @@
-import { svgbuild, stylesbuild } from "rotten";
+import { svgbuild, stylesbuild, readdir } from "rotten";
 
 await svgbuild({
   outdir: "./components/svg/",
@@ -12,7 +12,7 @@ await svgbuild({
 });
 
 await stylesbuild({
-  entrydir: new URL("./styles/", import.meta.url),
+  entryPoints: await readdir(new URL("./styles/", import.meta.url)),
   outfile: new URL("./styles.gen.ts", import.meta.url),
 });
 

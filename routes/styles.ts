@@ -1,4 +1,9 @@
-import { postcss, postcssNesting, mrmime } from "../deps.ts";
+import { postcss, postcssNesting } from "../deps.ts";
+import {
+  cssSignatureFromUrl,
+  cssIdFromUrl,
+  default as build,
+} from "../utils/stylesbuild.ts";
 
 const cssTransform = async (className, url) =>
   await postcss.default([postcssNesting.default]).process(
@@ -8,25 +13,26 @@ const cssTransform = async (className, url) =>
     { from: undefined }
   );
 
-export const setup = async ({ stylesGen, base }) => {
+export const setup = async ({ entryPoints }) => {
   return await Promise.all(
-    Object.values(stylesGen)
-      .filter(({ className: v }: any) => v)
-      .map(async ({ className, path }: any) => ({
+    entryPoints.map(async (url: any) => {
+      const { className, id } = await cssSignatureFromUrl(url);
+      return {
+        id,
         className,
-        path,
-        css: await cssTransform(className, new URL(path, base)),
-      }))
+        css: await cssTransform(className, url),
+      };
+    })
   );
 };
 
-export const handler = async (req, { origin, styles }) => {
-  const fpath = new URL(`..${new URL(req.url).pathname}`, origin);
-  for (const { path, css } of styles) {
-    if (new URL("../" + path, origin).href === fpath.href)
+export const handler = async (req, { styles }) => {
+  const reqId = cssIdFromUrl(new URL(req.url));
+  for (const { id, css } of styles) {
+    if (reqId === id)
       return new Response(css, {
         headers: {
-          "content-type": mrmime.lookup(path) ?? "text/css",
+          "content-type": "text/css",
           "cache-control": "public, max-age=31536000, immutable",
         },
       });

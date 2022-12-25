@@ -18,3 +18,9 @@ export const withRenderer = (
     render: (data) =>
       render(elt, props)({ Wrapper, scriptedGet, data, ...ctx }),
   });
+export const readdir = async (styleDir) => {
+  const entryPoints: string[] = [];
+  for await (const { isFile, name } of Deno.readDir(styleDir))
+    if (isFile) entryPoints.push(new URL(styleDir + name));
+  return entryPoints;
+};

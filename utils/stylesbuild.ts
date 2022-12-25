@@ -1,17 +1,24 @@
 import { pascalify, getHashSync, memo } from "./shalimar.ts";
 
-export default async ({ outfile, entrydir }) => {
-  const styles: any[] = [];
-  for await (const { name, isFile } of Deno.readDir(entrydir))
-    if (isFile)
-      styles.push({
-        name,
-        id: pascalify(name?.match(/(.*?)\.(.*)/)?.[1]),
-        path: "./styles/" + name,
-        className: `_${getHashSync(new URL(name, entrydir).href)}`,
-      });
+export const cssIdFromUrl = (url: URL) =>
+  pascalify(url.href.match(/.*\/(.*?)\.(.*)/)?.[1]);
 
-  await memo(Deno.writeTextFile)(
+export const cssSignatureFromUrl = async (url: URL) => ({
+  id: cssIdFromUrl(url),
+  className: `_${getHashSync(await Deno.readTextFile(url))}`,
+});
+
+export const cssSignatureFromEntrypoints = async (entryPoints: URL[]) =>
+  await entryPoints
+    .map(cssSignatureFromUrl)
+    .reduce(async (p, v) => [...(await p), await v], []);
+
+export default async ({ outfile, entryPoints }) => {
+  const styles = await cssSignatureFromEntrypoints(entryPoints);
+  const mem = await Deno.stat(outfile)
+    .then(() => memo)
+    .catch(() => (v) => v);
+  await await mem(Deno.writeTextFile)(
     outfile,
     [
       ...styles.map(

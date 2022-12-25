@@ -1,6 +1,6 @@
-export const Counter = {"name":"Counter.css","id":"Counter","path":"./styles/Counter.css","className":"_843213494"};
-export const Layout = {"name":"Layout.css","id":"Layout","path":"./styles/Layout.css","className":"_1373523718"};
-export const Root = {"name":"Root.css","id":"Root","path":"./styles/Root.css","className":"_630108814"};
+export const Counter = {"id":"Counter","className":"_505328361"};
+export const Layout = {"id":"Layout","className":"_508711974"};
+export const Root = {"id":"Root","className":"_1691959736"};
 export const state = new Map();
 const classs = (...args)=>args.flatMap((object)=>{
                 if (!object) return null;
