@@ -81,7 +81,16 @@ export const setup = async ({ origin, importMapURL, ...esbuildConfig }) => {
   };
 };
 
-export const handler = async (req, { origin, metafile, outputFiles }) => {
+let result;
+export const handler = async (
+  req,
+  { origin, metafile: _m, outputFiles: _o, importMapURL, ...esbuildConfig }
+) => {
+  result =
+    _m && _o
+      ? { metafile: _m, outputFiles: _o }
+      : result ?? (await setup({ origin, importMapURL, ...esbuildConfig }));
+  const { metafile, outputFiles } = result;
   const fpath = new URL(`..${new URL(req.url).pathname}`, origin);
   for (const [i, key] of Object.keys(metafile?.outputs ?? {}).entries()) {
     if (new URL(key, origin).href === fpath.href) {
