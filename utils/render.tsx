@@ -15,14 +15,20 @@ export const hydrate = (...props) =>
 
 export default (
     Component,
-    { render, transformBody = (app) => app.replace(/\n/g, "\n\t\t") }
+    {
+      render,
+      transformBody = (app) => app.replace(/\n/g, "\n\t\t"),
+      postRender = (v) => v,
+    }
   ) =>
   ({ Wrapper, ...props }) => {
     const key = "__BODY_INCLUDE__";
     const app = render(<Component data={props.data} />);
     const W = Wrapper ?? (({ children }) => <html>{children}</html>);
     return new Response(
-      render(<W {...props}>{key}</W>).replace(key, transformBody(app)),
-      { headers: { "content-type": "text/html" } }
+      postRender(
+        render(<W {...props}>{key}</W>).replace(key, transformBody(app))
+      ),
+      { headers: { "content-type": "text/html; charset=utf-8 " } }
     );
   };
