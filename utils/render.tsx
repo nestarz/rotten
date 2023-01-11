@@ -3,6 +3,7 @@ export { scripted, scriptedGet } from "./shalimar.ts";
 
 export const hydrate = (...props) =>
   scripted((node, island, props, children) => {
+    node.classList.add("rotten-hydrating");
     import(`/islands/${island}.js`).then(({ default: C, h, hydrate }) => {
       const wrapper = document.createElement("fragment");
       node.parentNode.insertBefore(wrapper, node);
@@ -10,6 +11,7 @@ export const hydrate = (...props) =>
       hydrate(h(C, props, children), wrapper);
       wrapper.childNodes.forEach((node) => wrapper.before(node));
       wrapper.remove();
+      node.classList.remove("rotten-hydrating");
     });
   }, ...props);
 
