@@ -181,6 +181,10 @@ export const createRegister =
     const specifier = islands.find((v) =>
       v.entrypath?.includes(vpath)
     )?.reqpath;
+    if (!specifier) {
+      console.log({ vpath, islands });
+      throw Error(`[islands] Specifier for "${vpath}" not found.`);
+    }
     return scripted(hydrate, specifier, name ?? "default", props ?? {});
   };
 
