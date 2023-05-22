@@ -1,4 +1,4 @@
-import { join, fromFileUrl } from "https://deno.land/std@0.189.0/path/mod.ts";
+import { join, fromFileUrl } from "https://deno.land/std@0.188.0/path/mod.ts";
 import * as esbuild from "https://deno.land/x/esbuild@v0.17.19/wasm.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
 import {
