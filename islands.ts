@@ -1,8 +1,4 @@
-import {
-  fromFileUrl,
-  join,
-  toFileUrl,
-} from "https://deno.land/std@0.188.0/path/mod.ts";
+import { fromFileUrl, join } from "https://deno.land/std@0.188.0/path/mod.ts";
 import * as esbuild from "https://deno.land/x/esbuild@v0.17.19/wasm.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
 import {
@@ -88,28 +84,28 @@ export const dump = async (manifest: Manifest) => {
   return outputFiles?.[0].text;
 };
 
-type Glob = (Deno.DirEntry & { path: string })[];
+type Glob = (Deno.DirEntry & { url: URL })[];
 
 const readDir = async (dir: string | URL) => {
   const results: Deno.DirEntry[] = [];
-  if (await Deno.stat(dir).catch(() => false)) {
+  if (await Deno.stat(dir).catch(() => false))
     for await (const result of Deno.readDir(dir)) results.push(result);
-  }
   return results;
 };
 
-const asynGlob = async (
+const asyncGlob = async (
   dir: string | URL,
   pattern: URLPattern
 ): Promise<Glob> => {
   const entries = await readDir(dir);
   const results: Glob = [];
   for (const entry of entries) {
+    const url = new URL(`${dir}/${entry.name}`);
     if (entry.isDirectory) {
-      const subResults = await asynGlob(`${dir}/${entry.name}`, pattern);
+      const subResults = await asyncGlob(`${dir}/${entry.name}`, pattern);
       results.push(...subResults);
-    } else if (pattern.test(entry.name)) {
-      results.push({ ...entry, path: `${dir}/${entry.name}` });
+    } else if (pattern.test(url)) {
+      results.push({ ...entry, url });
     }
   }
   return results;
@@ -239,8 +235,8 @@ export const setup = async (manifest: Manifest, save = true) => {
         const islandPattern = new URLPattern({ pathname: "*.(t|j)s(x|)" });
         const paths = islandPattern.test(island)
           ? [island]
-          : await asynGlob(island, islandPattern).then((files) =>
-              files.map(({ path }) => toFileUrl(path))
+          : await asyncGlob(island, islandPattern).then((files) =>
+              files.map(({ url }) => url)
             );
         return Promise.all(
           paths.map(
