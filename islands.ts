@@ -1,4 +1,5 @@
 import { fromFileUrl, join } from "https://deno.land/std@0.188.0/path/mod.ts";
+import { toFileUrl } from "https://deno.land/std@0.188.0/path/win32.ts";
 import * as esbuild from "https://deno.land/x/esbuild@v0.17.19/wasm.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
 import {
@@ -27,7 +28,7 @@ const readPlugin = () => ({
     build.onLoad(
       { filter: /.*\.(t|j)s(x|)/, namespace: "file" },
       async (args) => ({
-        contents: await fetch(args.path).then((r) => r.text()),
+        contents: await fetch(toFileUrl(args.path)).then((r) => r.text()),
         loader: "tsx",
       })
     );
@@ -112,13 +113,13 @@ const asyncGlob = async (
 };
 
 interface Root {
-  render(children: React.ReactNode): void;
+  render(children: VNode): void;
   unmount(): void;
 }
 
 type HydrateFn = (
   container: Element | Document,
-  initialChildren: React.ReactNode
+  initialChildren: VNode
 ) => Root;
 
 const hydrate = (
@@ -127,19 +128,25 @@ const hydrate = (
   name: string,
   { ...props }: { [key: string]: any }
 ): void => {
-  import(specifier).then(({ h, hydrate, ...o }: { hydrate: HydrateFn }) => {
-    const childs = [...node.childNodes].map((node) => {
-      if (!node.tagName && node.nodeType === 3) return node.textContent;
-      const attributes = Array.from(node.attributes ?? {}).reduce(
-        (p, a) => ({ ...p, [a.name]: a.value }),
-        { dangerouslySetInnerHTML: { __html: node.innerHTML } }
-      );
-      return h(node.tagName.toLowerCase(), attributes);
-    });
-    const hydrateFn = (a, b) =>
-      hydrate.length === 2 ? hydrate(a, b) : hydrate(b, a);
-    hydrateFn(h(o[name], props, childs), node.parentNode);
-  });
+  import(specifier).then(
+    ({ h, hydrate, withFragment, ...o }: { hydrate: HydrateFn }) => {
+      const childs = [...node.childNodes].map((node) => {
+        if (!node.tagName && node.nodeType === 3) return node.textContent;
+        const attributes = Array.from(node.attributes ?? {}).reduce(
+          (p, a) => ({ ...p, [a.name]: a.value }),
+          { dangerouslySetInnerHTML: { __html: node.innerHTML } }
+        );
+        return h(node.tagName.toLowerCase(), attributes);
+      });
+      const hydrateFn = (a, b) =>
+        hydrate.length === 2 ? hydrate(a, b) : hydrate(b, a);
+      const container = withFragment
+        ? document.createDocumentFragment()
+        : node.parentNode;
+      hydrateFn(h(o[name], props, childs), container);
+      if (withFragment) node.replaceWith(container);
+    }
+  );
 };
 
 const getIsland = (islands: Record<string, string>[], url: string | URL) => {
