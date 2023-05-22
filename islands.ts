@@ -1,4 +1,8 @@
-import { join, fromFileUrl } from "https://deno.land/std@0.188.0/path/mod.ts";
+import {
+  fromFileUrl,
+  join,
+  toFileUrl,
+} from "https://deno.land/std@0.188.0/path/mod.ts";
 import * as esbuild from "https://deno.land/x/esbuild@v0.17.19/wasm.js";
 import { denoPlugins } from "https://deno.land/x/esbuild_deno_loader@0.7.0/mod.ts";
 import {
@@ -27,7 +31,7 @@ const readPlugin = () => ({
     build.onLoad(
       { filter: /.*\.(t|j)s(x|)/, namespace: "file" },
       async (args) => ({
-        contents: await Deno.readTextFile(args.path),
+        contents: await fetch(args.path).then((r) => r.text()),
         loader: "tsx",
       })
     );
@@ -36,15 +40,19 @@ const readPlugin = () => ({
 
 const readOnly = !!Deno.env.get("DENO_DEPLOYMENT_ID");
 
-console.time("init");
-console.log(esbuild.version);
-await esbuild.initialize({
-  wasmURL: `https://raw.githubusercontent.com/esbuild/deno-esbuild/v${esbuild.version}/esbuild.wasm`,
-  worker: false,
-});
-console.timeEnd("init");
+console.time(`[init] ${esbuild.version}`);
+await esbuild
+  .initialize({
+    wasmURL: `https://raw.githubusercontent.com/esbuild/deno-esbuild/v${esbuild.version}/esbuild.wasm`,
+    worker: false,
+  })
+  .catch(console.warn);
+console.timeEnd(`[init] ${esbuild.version}`);
 
-const esBuild = async (manifest, config = {}) => {
+const esBuild = async (
+  manifest: Manifest,
+  config: Parameters<typeof esbuild.build>[0] = {}
+) => {
   console.time("build");
   const res = await esbuild.build({
     plugins: [
@@ -70,14 +78,14 @@ const esBuild = async (manifest, config = {}) => {
   return res;
 };
 
-export const dump = async (manifest) => {
+export const dump = async (manifest: Manifest) => {
   const contents = collectAndCleanScripts();
   const { outputFiles } = await esBuild(manifest, {
     splitting: false,
     stdin: { contents },
     sourcemap: false,
   });
-  return outputFiles[0].text;
+  return outputFiles?.[0].text;
 };
 
 type Glob = (Deno.DirEntry & { path: string })[];
@@ -90,14 +98,17 @@ const readDir = async (dir: string | URL) => {
   return results;
 };
 
-const asynGlob = async (dir: string | URL, url: URLPattern): Promise<Glob> => {
+const asynGlob = async (
+  dir: string | URL,
+  pattern: URLPattern
+): Promise<Glob> => {
   const entries = await readDir(dir);
   const results: Glob = [];
   for (const entry of entries) {
     if (entry.isDirectory) {
-      const subResults = await asynGlob(`${dir}/${entry.name}`, url);
+      const subResults = await asynGlob(`${dir}/${entry.name}`, pattern);
       results.push(...subResults);
-    } else if (entry.name.match(url.pathname)) {
+    } else if (pattern.test(entry.name)) {
       results.push({ ...entry, path: `${dir}/${entry.name}` });
     }
   }
@@ -139,14 +150,15 @@ const getIsland = (islands: Record<string, string>[], url: string | URL) => {
   return islands.find((v) => v.reqpath === new URL(url).pathname);
 };
 
-const buildIsland = async (prefix: string, entrypath: string) => {
-  const id = `_${getHashSync(await Deno.readTextFile(fromFileUrl(entrypath)))}`;
+const buildIsland = async (prefix: string, entryUrl: URL) => {
+  const id = `_${getHashSync(await fetch(entryUrl).then((r) => r.text()))}`;
   const reqpath = join(prefix, `${id}.js`);
+  const entrypath = entryUrl.href;
   return { id, entrypath, reqpath, outpath: join("dist", reqpath) };
 };
 
 const buildOutputFiles = async (
-  manifest,
+  manifest: Manifest,
   islands: Record<string, string>[],
   save: boolean
 ) => {
@@ -157,7 +169,7 @@ const buildOutputFiles = async (
     await Deno.remove(folder, { recursive: true }).catch(() => null);
     await Deno.mkdir(folder, { recursive: true });
     await Promise.all(
-      result.outputFiles.map(({ path, contents }) =>
+      (result.outputFiles ?? []).map(({ path, contents }) =>
         Deno.writeFile(join("dist", path), contents)
       )
     );
@@ -182,7 +194,7 @@ export const createRegister =
       v.entrypath?.includes(vpath)
     )?.reqpath;
     if (!specifier) {
-      console.log({ vpath, islands });
+      console.log(vpath, islands);
       throw Error(`[islands] Specifier for "${vpath}" not found.`);
     }
     return scripted(hydrate, specifier, name ?? "default", props ?? {});
@@ -211,15 +223,34 @@ export const createRegisterComponent =
     );
   };
 
-export const setup = async (manifest, save = true) => {
-  const islands = await Promise.all(
-    await asynGlob(
-      manifest.islands,
-      new URLPattern("*.(t|j)s(x|)", "file://")
-    ).then((files) =>
-      files.map(async ({ path }) => await buildIsland(manifest.prefix, path))
+export interface Manifest {
+  baseUrl: URL;
+  islands: URL | URL[];
+  prefix: string;
+}
+
+export const setup = async (manifest: Manifest, save = true) => {
+  const islands = (
+    await Promise.all(
+      (Array.isArray(manifest.islands)
+        ? manifest.islands
+        : [manifest.islands].filter((v) => v)
+      ).flatMap(async (island: URL) => {
+        const islandPattern = new URLPattern({ pathname: "*.(t|j)s(x|)" });
+        const paths = islandPattern.test(island)
+          ? [island]
+          : await asynGlob(island, islandPattern).then((files) =>
+              files.map(({ path }) => toFileUrl(path))
+            );
+        return Promise.all(
+          paths.map(
+            async (path: URL) => await buildIsland(manifest.prefix, path)
+          )
+        );
+      })
     )
-  );
+  ).flat(1);
+
   const isSync = await Promise.all(
     islands.map(async (v) => !!(await Deno.stat(v.outpath)))
   ).catch(() => false);
@@ -258,7 +289,7 @@ export const setup = async (manifest, save = true) => {
           get: (url: string) => {
             const island = getIsland(islands, url);
             return (
-              result.outputFiles.find(
+              (result.outputFiles ?? []).find(
                 (file) =>
                   file.path === island?.reqpath ||
                   file.path === new URL(url).pathname
