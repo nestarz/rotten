@@ -10,14 +10,14 @@ export const deepApplyFunction = (
   fn: (func: Function) => Function,
   obj: DeepObject
 ): DeepObject => {
-  const applyFn = (value: unknown): unknown => {
-    if (typeof value === "function") return fn(value);
+  const applyFn = (value: unknown, key: string): unknown => {
+    if (typeof value === "function") return fn(value, key);
     if (typeof value === "object" && value !== null && !Array.isArray(value))
       return deepApplyFunction(fn, value as DeepObject);
     return value;
   };
   const newObj: DeepObject = {};
-  for (const key in obj) newObj[key] = applyFn(obj[key]);
+  for (const key in obj) newObj[key] = applyFn(obj[key], key);
   return newObj;
 };
 
